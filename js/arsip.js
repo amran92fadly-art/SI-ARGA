@@ -26,7 +26,7 @@ async function simpanArsip() {
     document.querySelector("form").reset();
 }
 
-// 2. Fungsi untuk Menampilkan Data di Tabel Berdasarkan Tahun
+// 2. Fungsi untuk Menampilkan Data di Tabel Berdasarkan Tahun (Lengkap dengan Edit & Hapus)
 async function tampilSemua(tahun) {
     let tabel = document.getElementById("tabelArsip");
     let judul = document.getElementById("judul");
@@ -43,7 +43,6 @@ async function tampilSemua(tahun) {
         tabel.innerHTML = `<tr><td colspan="6" class="text-center">Memuat data dari Google Sheets...</td></tr>`;
     }
 
-    // Tunggu sampai data dari Google Sheets selesai diambil (pakai await)
     let dataArsip = await ambilDataArsip();
 
     if (tabel) {
@@ -52,7 +51,6 @@ async function tampilSemua(tahun) {
 
         if (Array.isArray(dataArsip)) {
             dataArsip.forEach(function(item) {
-                // Ambil link drive dari dalam teks keterangan jika ada
                 let link = '#';
                 let ketAsli = item.keterangan || '';
                 if (ketAsli.includes('Link Drive: ')) {
