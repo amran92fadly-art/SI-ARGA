@@ -11,10 +11,7 @@ async function simpanArsip() {
         return;
     }
 
-    // Buat ID unik berdasarkan waktu
     let id = 'ARGA-' + Date.now();
-
-    // Gabungkan keterangan dan link Google Drive
     let keteranganLengkap = `${keterangan} | Link Drive: ${linkDrive}`;
 
     let dataBaru = {
@@ -25,10 +22,7 @@ async function simpanArsip() {
         keterangan: keteranganLengkap
     };
 
-    // Panggil fungsi dari app.js untuk kirim ke Google Sheets
     await tambahArsip(dataBaru);
-
-    // Reset form setelah berhasil
     document.querySelector("form").reset();
 }
 
@@ -37,32 +31,46 @@ async function tampilSemua(tahun) {
     let tabel = document.getElementById("tabelArsip");
     let judul = document.getElementById("judul");
     
-    if (judul) judul.innerHTML = "Daftar Arsip Tahun " + tahun;
-    if (tabel) tabel.innerHTML = `<tr><td colspan="6" class="text-center">Memuat data dari Google Sheets...</td></tr>`;
+    if (judul) {
+        if (tahun === 'SEMUA') {
+            judul.innerHTML = "Semua Daftar Arsip Tersimpan";
+        } else {
+            judul.innerHTML = "Daftar Arsip Tahun " + tahun;
+        }
+    }
+    
+    if (tabel) {
+        tabel.innerHTML = `<tr><td colspan="6" class="text-center">Memuat data dari Google Sheets...</td></tr>`;
+    }
 
-    // Ambil data dari Google Sheets via app.js
+    // Tunggu sampai data dari Google Sheets selesai diambil (pakai await)
     let dataArsip = await ambilDataArsip();
 
     if (tabel) {
         tabel.innerHTML = "";
         let nomor = 1;
 
-        // Pastikan dataArsip berupa array
         if (Array.isArray(dataArsip)) {
             dataArsip.forEach(function(item) {
-                // Sesuaikan penamaan kolom dari Google Sheets (namaDokumen, jenisArsip, dll)
-                if (item.tahunArsip == tahun) {
+                // Ambil link drive dari dalam teks keterangan jika ada
+                let link = '#';
+                let ketAsli = item.keterangan || '';
+                if (ketAsli.includes('Link Drive: ')) {
+                    let splitData = ketAsli.split('Link Drive: ');
+                    ketAsli = splitData[0];
+                    link = splitData[1];
+                }
+
+                if (tahun === 'SEMUA' || item.tahunArsip == tahun) {
                     tabel.innerHTML += `
                     <tr>
                         <td>${nomor++}</td>
                         <td>${item.namaDokumen || '-'}</td>
                         <td>${item.jenisArsip || '-'}</td>
                         <td>${item.tahunArsip || '-'}</td>
-                        <td>${item.keterangan || '-'}</td>
+                        <td>${ketAsli}</td>
                         <td>
-                            <a href="${item.keterangan && item.keterangan.includes('Link Drive: ') ? item.keterangan.split('Link Drive: ')[1] : '#'}" 
-                               target="_blank" 
-                               class="btn btn-success btn-sm">
+                            <a href="${link}" target="_blank" class="btn btn-success btn-sm">
                             👁️ Lihat
                             </a>
                         </td>
@@ -76,7 +84,7 @@ async function tampilSemua(tahun) {
             tabel.innerHTML = `
             <tr>
                 <td colspan="6" class="text-center">
-                    Belum ada arsip tahun ${tahun}
+                    Belum ada arsip ${tahun === 'SEMUA' ? '' : 'tahun ' + tahun}
                 </td>
             </tr>
             `;
