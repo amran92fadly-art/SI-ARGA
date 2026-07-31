@@ -26,7 +26,7 @@ async function simpanArsip() {
     document.querySelector("form").reset();
 }
 
-// 2. Fungsi untuk Menampilkan Data di Tabel Berdasarkan Tahun (Lengkap dengan Edit & Hapus)
+// 2. Fungsi untuk Menampilkan Data di Tabel Berdasarkan Tahun (Lengkap dengan Tombol Lihat, Edit, & Hapus)
 async function tampilSemua(tahun) {
     let tabel = document.getElementById("tabelArsip");
     let judul = document.getElementById("judul");
@@ -68,9 +68,15 @@ async function tampilSemua(tahun) {
                         <td>${item.tahunArsip || '-'}</td>
                         <td>${ketAsli}</td>
                         <td>
-                            <a href="${link}" target="_blank" class="btn btn-success btn-sm">
+                            <a href="${link}" target="_blank" class="btn btn-success btn-sm mb-1">
                             👁️ Lihat
                             </a>
+                            <button class="btn btn-warning btn-sm mb-1" onclick="alert('Fitur edit online akan disesuaikan dengan SheetDB')">
+                            ✏️ Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm mb-1" onclick="alert('Fitur hapus online akan disesuaikan dengan SheetDB')">
+                            🗑️ Hapus
+                            </button>
                         </td>
                     </tr>
                     `;
