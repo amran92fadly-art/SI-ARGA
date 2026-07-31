@@ -7,6 +7,8 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Hubungkan ke app.js di bagian head agar fungsi langsung terbaca -->
+<script src="js/app.js"></script>
 
 <style>
 body{
@@ -57,7 +59,7 @@ body{
     padding:30px;
 }
 
-/* CARD STATISTIK MODERN DENGAN EFEK HOVER */
+/* CARD STATISTIK MODERN */
 .card-stat{
     border:none;
     border-radius:15px;
@@ -76,7 +78,6 @@ body{
     color: #0d6efd;
 }
 
-/* HEADER STYLING */
 .content h2 {
     font-weight: 700;
     color: #2b3450;
@@ -166,11 +167,8 @@ body{
 
 </div>
 
-<!-- Hubungkan ke app.js agar terhubung ke Google Sheets -->
-<script src="js/app.js"></script>
 <script>
 async function muatDashboard() {
-    // Ambil data langsung secara online dari Google Sheets melalui app.js
     let dataArsip = await ambilDataArsip();
     if (!Array.isArray(dataArsip)) dataArsip = [];
 
@@ -210,16 +208,15 @@ async function muatDashboard() {
     const jumlahArsip = Object.values(hitungTahun);
 
     const warnaTahunMap = {
-        '2024': '#2563eb', // Biru
-        '2025': '#16a34a', // Hijau
-        '2026': '#eab308'  // Kuning / Oranye
+        '2024': '#2563eb', 
+        '2025': '#16a34a', 
+        '2026': '#eab308'  
     };
 
     const backgroundColors = labelTahun.map(tahun => warnaTahunMap[tahun] || '#2563eb');
 
     const ctx = document.getElementById("grafikArsip");
 
-    // Hancurkan chart lama jika ada agar tidak glitch saat direfresh
     let existingChart = Chart.getChart(ctx);
     if (existingChart) {
         existingChart.destroy();
@@ -241,34 +238,26 @@ async function muatDashboard() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                }
+                legend: { display: false }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    },
-                    ticks: {
-                        stepSize: 1
-                    }
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                    ticks: { stepSize: 1 }
                 },
                 x: {
-                    grid: {
-                        display: false
-                    }
+                    grid: { display: false }
                 }
             }
         }
     });
 }
 
-// Jalankan fungsi saat halaman selesai dimuat
-window.addEventListener("DOMContentLoaded", () => {
+// Jalankan langsung saat halaman dimuat
+window.onload = function() {
     muatDashboard();
-});
+};
 </script>
 
 </body>
