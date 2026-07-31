@@ -96,7 +96,7 @@ async function tampilSemua(tahun) {
     }
 }
 
-// Fungsi Hapus Data dari Google Sheets via SheetDB
+// Fungsi Hapus Data dari Google Sheets via SheetDB (dengan jeda waktu)
 async function hapusArsipOnline(id) {
     let konfirmasi = confirm("Yakin ingin menghapus arsip ini dari database online?");
     if (!konfirmasi) return;
@@ -106,15 +106,21 @@ async function hapusArsipOnline(id) {
             method: 'DELETE',
         });
         let result = await response.json();
+        
         alert("Arsip berhasil dihapus dari Google Sheets!");
-        location.reload(); // Refresh halaman otomatis
+        
+        // Beri jeda 1 detik agar server sempat memproses
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+
     } catch (error) {
         console.error("Gagal menghapus:", error);
         alert("Terjadi kesalahan saat menghapus data.");
     }
 }
 
-// Fungsi Edit Data di Google Sheets via SheetDB
+// Fungsi Edit Data di Google Sheets via SheetDB (dengan jeda waktu)
 async function editArsipOnline(id) {
     let namaBaru = prompt("Masukkan Nama Dokumen Baru:");
     if (!namaBaru) return;
@@ -143,8 +149,14 @@ async function editArsipOnline(id) {
             body: JSON.stringify(dataUpdate)
         });
         let result = await response.json();
+        
         alert("Arsip berhasil diperbarui di Google Sheets!");
-        location.reload(); // Refresh halaman otomatis
+        
+        // Beri jeda 1 detik agar server selesai menyimpan perubahan
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+
     } catch (error) {
         console.error("Gagal memperbarui:", error);
         alert("Terjadi kesalahan saat mengedit data.");
