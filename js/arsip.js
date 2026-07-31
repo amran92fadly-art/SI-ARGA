@@ -1,68 +1,4 @@
-// URL API SheetDB Database SI-ARGA yang benar
-const SHEET_API_URL = 'https://sheetdb.io/api/v1/0pphfgdm3f59v';
-
-// 1. Fungsi untuk Mengambil Data Arsip dari Google Sheets
-async function ambilDataArsip() {
-    try {
-        let response = await fetch(SHEET_API_URL);
-        let data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Gagal mengambil data:", error);
-        return [];
-    }
-}
-
-// 2. Fungsi untuk Menambah Arsip ke Google Sheets
-async function tambahArsip(dataBaru) {
-    try {
-        let response = await fetch(SHEET_API_URL, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ data: dataBaru })
-        });
-        let result = await response.json();
-        alert("Arsip berhasil diupload ke Google Sheets!");
-        setTimeout(() => {
-            location.reload();
-        }, 1000);
-    } catch (error) {
-        console.error("Gagal menyimpan:", error);
-        alert("Terjadi kesalahan saat mengupload data.");
-    }
-}
-
-// Fungsi Trigger saat tombol Simpan di form upload diklik
-async function simpanArsip() {
-    let namaDokumen = document.getElementById("namaDokumen").value;
-    let jenisArsip = document.getElementById("jenisArsip").value;
-    let tahunArsip = document.getElementById("tahunArsip").value;
-    let keterangan = document.getElementById("keterangan").value;
-    let linkDrive = document.getElementById("linkDrive").value;
-
-    if (!namaDokumen) {
-        alert("Nama dokumen wajib diisi!");
-        return;
-    }
-
-    let id = 'ARGA-' + Date.now();
-    let keteranganLengkap = `${keterangan} | Link Drive: ${linkDrive}`;
-
-    let dataBaru = {
-        id: id,
-        namaDokumen: namaDokumen,
-        jenisArsip: jenisArsip,
-        tahunArsip: tahunArsip,
-        keterangan: keteranganLengkap
-    };
-
-    await tambahArsip(dataBaru);
-}
-
-// 3. Fungsi untuk Menampilkan Data di Tabel Berdasarkan Tahun
+// 1. Fungsi untuk Menampilkan Data di Tabel Berdasarkan Tahun (Lengkap dengan Tombol Aksi)
 async function tampilSemua(tahun) {
     let tabel = document.getElementById("tabelArsip");
     let judul = document.getElementById("judul");
@@ -132,13 +68,13 @@ async function tampilSemua(tahun) {
     }
 }
 
-// 4. Fungsi Hapus Data via SheetDB berdasarkan ID
+// 2. Fungsi Hapus Data via SheetDB berdasarkan ID
 async function hapusArsipOnline(id) {
     let konfirmasi = confirm("Yakin ingin menghapus arsip ini dari database online?");
     if (!konfirmasi) return;
 
     try {
-        let response = await fetch(`${SHEET_API_URL}/id/${id}`, {
+        let response = await fetch(`https://sheetdb.io/api/v1/0pphfgdm3f59v/id/${id}`, {
             method: 'DELETE',
         });
         let result = await response.json();
@@ -154,7 +90,7 @@ async function hapusArsipOnline(id) {
     }
 }
 
-// 5. Fungsi Edit Data via SheetDB berdasarkan ID
+// 3. Fungsi Edit Data via SheetDB berdasarkan ID
 async function editArsipOnline(id, namaLama, tahunLama, ketLama) {
     let namaBaru = prompt("Masukkan Nama Dokumen Baru:", namaLama);
     if (!namaBaru) return;
@@ -174,7 +110,7 @@ async function editArsipOnline(id, namaLama, tahunLama, ketLama) {
     };
 
     try {
-        let response = await fetch(`${SHEET_API_URL}/id/${id}`, {
+        let response = await fetch(`https://sheetdb.io/api/v1/0pphfgdm3f59v/id/${id}`, {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
