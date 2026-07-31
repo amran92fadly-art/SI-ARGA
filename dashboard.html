@@ -166,93 +166,108 @@ body{
 
 </div>
 
+<!-- Hubungkan ke app.js agar terhubung ke Google Sheets -->
+<script src="js/app.js"></script>
 <script>
-// AMBIL DATA ARSIP
-let dataArsip = JSON.parse(localStorage.getItem("arsip")) || [];
+async function muatDashboard() {
+    // Ambil data langsung secara online dari Google Sheets melalui app.js
+    let dataArsip = await ambilDataArsip();
+    if (!Array.isArray(dataArsip)) dataArsip = [];
 
-// TOTAL ARSIP
-document.getElementById("totalArsip").innerHTML = dataArsip.length;
+    // TOTAL ARSIP
+    document.getElementById("totalArsip").innerHTML = dataArsip.length;
 
-// JENIS ARSIP
-let daftarJenis = [];
-dataArsip.forEach(function(item){
-    if(!daftarJenis.includes(item.jenis)){
-        daftarJenis.push(item.jenis);
+    // JENIS ARSIP
+    let daftarJenis = [];
+    dataArsip.forEach(function(item){
+        let jenis = item.jenisArsip || item.jenis || '';
+        if(jenis && !daftarJenis.includes(jenis)){
+            daftarJenis.push(jenis);
+        }
+    });
+    document.getElementById("jenisArsip").innerHTML = daftarJenis.length;
+
+    // TAHUN ARSIP
+    let hitungTahun = {};
+    dataArsip.forEach(function(item){
+        let thn = item.tahunArsip || item.tahun || '';
+        let tahunBersih = thn ? thn.toString().trim().replace(/\.$/, '') : 'Lainnya';
+        hitungTahun[tahunBersih] = (hitungTahun[tahunBersih] || 0) + 1;
+    });
+
+    let tahunTerbanyak = "-";
+    let jumlahTerbanyak = 0;
+    for(let tahun in hitungTahun){
+        if(hitungTahun[tahun] > jumlahTerbanyak){
+            jumlahTerbanyak = hitungTahun[tahun];
+            tahunTerbanyak = tahun;
+        }
     }
-});
-document.getElementById("jenisArsip").innerHTML = daftarJenis.length;
+    document.getElementById("tahunAktif").innerHTML = tahunTerbanyak;
 
-// TAHUN ARSIP
-let hitungTahun = {};
-dataArsip.forEach(function(item){
-    // Ini otomatis membersihkan titik atau spasi pada tahun berapapun
-    let tahunBersih = item.tahun ? item.tahun.toString().trim().replace(/\.$/, '') : 'Lainnya';
-    hitungTahun[tahunBersih] = (hitungTahun[tahunBersih] || 0) + 1;
-});
+    // GRAFIK
+    const labelTahun = Object.keys(hitungTahun);
+    const jumlahArsip = Object.values(hitungTahun);
 
-let tahunTerbanyak = "-";
-let jumlahTerbanyak = 0;
-for(let tahun in hitungTahun){
-    if(hitungTahun[tahun] > jumlahTerbanyak){
-        jumlahTerbanyak = hitungTahun[tahun];
-        tahunTerbanyak = tahun;
+    const warnaTahunMap = {
+        '2024': '#2563eb', // Biru
+        '2025': '#16a34a', // Hijau
+        '2026': '#eab308'  // Kuning / Oranye
+    };
+
+    const backgroundColors = labelTahun.map(tahun => warnaTahunMap[tahun] || '#2563eb');
+
+    const ctx = document.getElementById("grafikArsip");
+
+    // Hancurkan chart lama jika ada agar tidak glitch saat direfresh
+    let existingChart = Chart.getChart(ctx);
+    if (existingChart) {
+        existingChart.destroy();
     }
-}
-document.getElementById("tahunAktif").innerHTML = tahunTerbanyak;
 
-// GRAFIK
-const labelTahun = Object.keys(hitungTahun);
-const jumlahArsip = Object.values(hitungTahun);
-
-// Menyesuaikan warna berdasarkan tahun secara otomatis
-const warnaTahunMap = {
-    '2024': '#2563eb', // Biru
-    '2025': '#16a34a', // Hijau
-    '2026': '#eab308'  // Kuning / Oranye
-};
-
-// Ambil warna yang cocok dengan label tahun pada data, default ke biru jika tahun lain
-const backgroundColors = labelTahun.map( tahun => warnaTahunMap[tahun] || '#2563eb' );
-
-const ctx = document.getElementById("grafikArsip");
-
-new Chart(ctx, {
-    type:"bar",
-    data:{
-        labels:labelTahun,
-        datasets:[{
-            label:"Jumlah Arsip",
-            data: jumlahArsip,
-            backgroundColor: backgroundColors, // Menggunakan warna dinamis sesuai tahun
-            borderWidth: 0,
-            borderRadius: 8 // Membuat ujung grafik batang menjadi melengkung modern
-        }]
-    },
-    options:{
-        responsive:true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            }
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labelTahun,
+            datasets: [{
+                label: "Jumlah Arsip",
+                data: jumlahArsip,
+                backgroundColor: backgroundColors,
+                borderWidth: 0,
+                borderRadius: 8
+            }]
         },
-        scales:{
-            y:{
-                beginAtZero:true,
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                },
-                ticks:{
-                    stepSize:1
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
                 }
             },
-            x: {
-                grid: {
-                    display: false
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
                 }
             }
         }
-    }
+    });
+}
+
+// Jalankan fungsi saat halaman selesai dimuat
+window.addEventListener("DOMContentLoaded", () => {
+    muatDashboard();
 });
 </script>
 
