@@ -1,3 +1,6 @@
+// URL API SheetDB Database SI-ARGA yang benar
+const SHEET_API_URL = 'https://sheetdb.io/api/v1/0pphfgdm3f59v';
+
 // 1. Fungsi untuk Menyimpan Arsip ke Google Sheets melalui app.js
 async function simpanArsip() {
     let namaDokumen = document.getElementById("namaDokumen").value;
@@ -60,7 +63,6 @@ async function tampilSemua(tahun) {
                 }
 
                 if (tahun === 'SEMUA' || item.tahunArsip == tahun) {
-                    let namaAman = encodeURIComponent(item.namaDokumen || '');
                     tabel.innerHTML += `
                     <tr>
                         <td>${nomor++}</td>
@@ -97,13 +99,13 @@ async function tampilSemua(tahun) {
     }
 }
 
-// 3. Fungsi Hapus Data dari Google Sheets via SheetDB berdasarkan Nama Dokumen
+// 3. Fungsi Hapus Data dari Google Sheets via SheetDB menggunakan SHEET_API_URL
 async function hapusArsipOnline(namaDokumen) {
     let konfirmasi = confirm("Yakin ingin menghapus arsip ini dari database online?");
     if (!konfirmasi) return;
 
     try {
-        let response = await fetch(`https://sheetdb.io/api/v1/71r2n3r73w571/namaDokumen/${encodeURIComponent(namaDokumen)}`, {
+        let response = await fetch(`${SHEET_API_URL}/namaDokumen/${encodeURIComponent(namaDokumen)}`, {
             method: 'DELETE',
         });
         let result = await response.json();
@@ -120,7 +122,7 @@ async function hapusArsipOnline(namaDokumen) {
     }
 }
 
-// 4. Fungsi Edit Data di Google Sheets via SheetDB berdasarkan Nama Dokumen
+// 4. Fungsi Edit Data di Google Sheets via SheetDB menggunakan SHEET_API_URL
 async function editArsipOnline(namaLama) {
     let namaBaru = prompt("Masukkan Nama Dokumen Baru:", namaLama);
     if (!namaBaru) return;
@@ -140,7 +142,7 @@ async function editArsipOnline(namaLama) {
     };
 
     try {
-        let response = await fetch(`https://sheetdb.io/api/v1/71r2n3r73w571/namaDokumen/${encodeURIComponent(namaLama)}`, {
+        let response = await fetch(`${SHEET_API_URL}/namaDokumen/${encodeURIComponent(namaLama)}`, {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
