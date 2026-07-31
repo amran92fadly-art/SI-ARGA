@@ -86,32 +86,33 @@ body{
 <thead class="table-primary">
 <tr>
 <th>No</th>
-<th>Nama</th>
+<th>Nama Dokumen</th>
 <th>Jenis</th>
 <th>Tahun</th>
 <th>Keterangan</th>
+<th>Aksi</th>
 </tr>
 </thead>
 <tbody id="hasilCari">
 <tr>
-<td colspan="5" class="text-center">Belum ada pencarian</td>
+<td colspan="6" class="text-center">Belum ada pencarian</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 
+<!-- Hubungkan ke file app.js agar terhubung ke Google Sheets -->
+<script src="js/app.js"></script>
 <script>
-let dataArsip = JSON.parse(localStorage.getItem("arsip")) || [];
-
-function cariArsip(){
-    let kata = document.getElementById("kataKunci").value.toLowerCase();
+async function cariArsip(){
+    let kata = document.getElementById("kataKunci").value.toLowerCase().trim();
     let hasil = document.getElementById("hasilCari");
     
-    if(kata.trim() === ""){
+    if(kata === ""){
         hasil.innerHTML=`
         <tr>
-            <td colspan="5" class="text-center">
+            <td colspan="6" class="text-center">
                 Masukkan nama dokumen terlebih dahulu
             </td>
         </tr>
@@ -119,45 +120,53 @@ function cariArsip(){
         return;
     }
 
+    hasil.innerHTML = `<tr><td colspan="6" class="text-center">Sedang mencari data dari Google Sheets...</td></tr>`;
+
+    // Ambil data dari Google Sheets melalui app.js
+    let dataArsip = await ambilDataArsip();
+    
     hasil.innerHTML="";
-    let no=1;
+    let no = 1;
 
-    dataArsip.forEach(function(item, index){
-        if(item.nama.toLowerCase().includes(kata)){
-            hasil.innerHTML+=`
-            <tr>
-                <td>${no++}</td>
-                <td>
-                    <a href="#" onclick="lihatArsip(${index}); return false;" class="text-primary text-decoration-none fw-bold" title="Klik untuk melihat dokumen">
-                        ${item.nama} 📄
-                    </a>
-                </td>
-                <td>${item.jenis}</td>
-                <td>${item.tahun}</td>
-                <td>${item.keterangan}</td>
-            </tr>
-            `;
-        }
-    });
+    if (Array.isArray(dataArsip)) {
+        dataArsip.forEach(function(item){
+            let namaDokumen = item.namaDokumen || '';
+            
+            if(namaDokumen.toLowerCase().includes(kata)){
+                let link = '#';
+                let ketAsli = item.keterangan || '';
+                if (ketAsli.includes('Link Drive: ')) {
+                    let splitData = ketAsli.split('Link Drive: ');
+                    ketAsli = splitData[0];
+                    link = splitData[1];
+                }
 
-    if(no==1){
+                hasil.innerHTML+=`
+                <tr>
+                    <td>${no++}</td>
+                    <td>${namaDokumen}</td>
+                    <td>${item.jenisArsip || '-'}</td>
+                    <td>${item.tahunArsip || '-'}</td>
+                    <td>${ketAsli}</td>
+                    <td>
+                        <a href="${link}" target="_blank" class="btn btn-success btn-sm">
+                            👁️ Lihat
+                        </a>
+                    </td>
+                </tr>
+                `;
+            }
+        });
+    }
+
+    if(no === 1){
         hasil.innerHTML=`
         <tr>
-            <td colspan="5" class="text-center">
+            <td colspan="6" class="text-center">
                 Data tidak ditemukan
             </td>
         </tr>
         `;
-    }
-}
-
-function lihatArsip(index) {
-    let item = dataArsip[index];
-    // Menggunakan item.link sesuai dengan struktur data arsip Anda
-    if(item && item.link) {
-        window.open(item.link, '_blank');
-    } else {
-        alert("Link dokumen tidak ditemukan atau belum di-upload!");
     }
 }
 </script>
