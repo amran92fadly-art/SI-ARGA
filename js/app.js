@@ -10,10 +10,11 @@ async function tambahArsip(dataArsip) {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ data: [dataArsip] })
+            body: JSON.stringify({ data: dataArsip })
         });
         const result = await response.json();
         alert('Berhasil menyimpan arsip ke Google Sheets!');
+        window.location.href = 'data_arsip.html';
         return result;
     } catch (error) {
         console.error('Gagal menyimpan:', error);
@@ -26,7 +27,7 @@ async function ambilDataArsip() {
     try {
         const response = await fetch(SHEET_API_URL);
         const data = await response.json();
-        return data;
+        return Array.isArray(data) ? data : [];
     } catch (error) {
         console.error('Gagal mengambil data:', error);
         return [];
