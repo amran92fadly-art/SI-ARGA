@@ -26,7 +26,7 @@ async function simpanArsip() {
     document.querySelector("form").reset();
 }
 
-// 2. Fungsi untuk Menampilkan Data di Tabel Berdasarkan Tahun (Lengkap dengan Tombol Lihat, Edit, & Hapus)
+// 2. Fungsi untuk Menampilkan Data di Tabel Berdasarkan Tahun (Lengkap dengan Aksi)
 async function tampilSemua(tahun) {
     let tabel = document.getElementById("tabelArsip");
     let judul = document.getElementById("judul");
@@ -71,10 +71,10 @@ async function tampilSemua(tahun) {
                             <a href="${link}" target="_blank" class="btn btn-success btn-sm mb-1">
                             👁️ Lihat
                             </a>
-                            <button class="btn btn-warning btn-sm mb-1" onclick="alert('Fitur edit online akan disesuaikan dengan SheetDB')">
+                            <button class="btn btn-warning btn-sm mb-1" onclick="editArsipOnline('${item.id}')">
                             ✏️ Edit
                             </button>
-                            <button class="btn btn-danger btn-sm mb-1" onclick="alert('Fitur hapus online akan disesuaikan dengan SheetDB')">
+                            <button class="btn btn-danger btn-sm mb-1" onclick="hapusArsipOnline('${item.id}')">
                             🗑️ Hapus
                             </button>
                         </td>
@@ -96,14 +96,61 @@ async function tampilSemua(tahun) {
     }
 }
 
-function tampil2024(){
-    tampilSemua("2024");
+// Fungsi Hapus Data dari Google Sheets via SheetDB
+async function hapusArsipOnline(id) {
+    let konfirmasi = confirm("Yakin ingin menghapus arsip ini dari database online?");
+    if (!konfirmasi) return;
+
+    try {
+        let response = await fetch(`https://sheetdb.io/api/v1/71r2n3r73w571/id/${id}`, {
+            method: 'DELETE',
+        });
+        let result = await response.json();
+        alert("Arsip berhasil dihapus dari Google Sheets!");
+        location.reload(); // Refresh halaman otomatis
+    } catch (error) {
+        console.error("Gagal menghapus:", error);
+        alert("Terjadi kesalahan saat menghapus data.");
+    }
 }
 
-function tampil2025(){
-    tampilSemua("2025");
+// Fungsi Edit Data di Google Sheets via SheetDB
+async function editArsipOnline(id) {
+    let namaBaru = prompt("Masukkan Nama Dokumen Baru:");
+    if (!namaBaru) return;
+
+    let tahunBaru = prompt("Masukkan Tahun Arsip Baru:");
+    if (!tahunBaru) return;
+
+    let ketBaru = prompt("Masukkan Keterangan Baru:");
+    if (ketBaru === null) return;
+
+    let dataUpdate = {
+        data: {
+            namaDokumen: namaBaru,
+            tahunArsip: tahunBaru,
+            keterangan: ketBaru
+        }
+    };
+
+    try {
+        let response = await fetch(`https://sheetdb.io/api/v1/71r2n3r73w571/id/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataUpdate)
+        });
+        let result = await response.json();
+        alert("Arsip berhasil diperbarui di Google Sheets!");
+        location.reload(); // Refresh halaman otomatis
+    } catch (error) {
+        console.error("Gagal memperbarui:", error);
+        alert("Terjadi kesalahan saat mengedit data.");
+    }
 }
 
-function tampil2026(){
-    tampilSemua("2026");
-}
+function tampil2024(){ tampilSemua("2024"); }
+function tampil2025(){ tampilSemua("2025"); }
+function tampil2026(){ tampilSemua("2026"); }
