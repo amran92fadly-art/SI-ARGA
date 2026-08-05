@@ -74,7 +74,7 @@ async function hapusArsipOnline(id) {
     if (!konfirmasi) return;
 
     try {
-        let response = await fetch(`https://sheetdb.io/api/v1/0pphfgdm3f59v/id/${id}`, {
+        let response = await fetch(`https://sheetdb.io/api/v1/8iv115zyf9df7/id/${id}`, {
             method: 'DELETE',
         });
         let result = await response.json();
@@ -110,7 +110,7 @@ async function editArsipOnline(id, namaLama, tahunLama, ketLama) {
     };
 
     try {
-        let response = await fetch(`https://sheetdb.io/api/v1/0pphfgdm3f59v/id/${id}`, {
+        let response = await fetch(`https://sheetdb.io/api/v1/8iv115zyf9df7/id/${id}`, {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
